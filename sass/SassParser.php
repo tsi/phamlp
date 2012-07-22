@@ -295,17 +295,19 @@ class SassParser {
 		
 		if (!empty($options['extensions'])) {
 			foreach ($options['extensions'] as $extension=>$extOptions) {
-				include dirname(__FILE__).DIRECTORY_SEPARATOR.'extensions'.DIRECTORY_SEPARATOR.$extension.DIRECTORY_SEPARATOR.'config.php';
+				
+                include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'extensions'.DIRECTORY_SEPARATOR.$extension.DIRECTORY_SEPARATOR.'config.php';
+ 
 				$configClass = 'SassExtentions'.$extension.'Config';
 				$config = new $configClass;
 				$config->config($extOptions);
 				
-				$lp = dirname(__FILE__).DIRECTORY_SEPARATOR.'extensions'.DIRECTORY_SEPARATOR.$extension.DIRECTORY_SEPARATOR.'frameworks';
-				$fp = dirname(__FILE__).DIRECTORY_SEPARATOR.'extensions'.DIRECTORY_SEPARATOR.$extension.DIRECTORY_SEPARATOR.'functions';
+				$lp = array(dirname(__FILE__).DIRECTORY_SEPARATOR.'extensions'.DIRECTORY_SEPARATOR.$extension.DIRECTORY_SEPARATOR.'frameworks');
+				$fp = array(dirname(__FILE__).DIRECTORY_SEPARATOR.'extensions'.DIRECTORY_SEPARATOR.$extension.DIRECTORY_SEPARATOR.'functions');
 				$options['load_paths'] = (empty($options['load_paths']) ?
-					array($lp) : array_merge($options['load_paths'], $lp));
+					$lp : array_merge($options['load_paths'], $lp));
 				$options['function_paths'] = (empty($options['function_paths']) ?
-					array($fp) : array_merge($options['function_paths'], $fp));			
+					$fp : array_merge($options['function_paths'], $fp));
 			}
 		}
 		
@@ -540,7 +542,7 @@ class SassParser {
 			case SassVariableNode::isa($token):
 				return new SassVariableNode($token);
 				break;
-			case SassPropertyNode::isa($token, $this->property_syntax):
+			case SassPropertyNode::isa(array('token' => $token, 'syntax' => $this->property_syntax)):
 				return new SassPropertyNode($token, $this->property_syntax);
 				break;
 			case SassMixinDefinitionNode::isa($token):

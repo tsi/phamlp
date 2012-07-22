@@ -36,7 +36,7 @@ class SassImportNode extends SassNode {
 		preg_match(self::MATCH, $token->source, $matches);
 		foreach (explode(',', $matches[self::FILES]) as $file) {
 			$this->files[] = trim($file);
-		}		
+		}
 	}
 
 	/**
@@ -53,9 +53,26 @@ class SassImportNode extends SassNode {
 				return "@import {$file}";
 			}
 			else {
-				$file = trim($file, '\'"');
-				$tree = SassFile::getTree(
-					SassFile::getFile($file, $this->parser), $this->parser);
+				if (strpos($file, 'sprites/') === false) {
+					$file = trim($file, '\'"');
+					$tree = SassFile::getTree(
+						SassFile::getFile($file, $this->parser), $this->parser);
+				}
+				else {
+					// Sasson sprites taking over here.
+					$file = trim($file, '\'"');
+					$parts = explode("/", $this->parser->filename);
+					$theme = $parts[array_search('themes', $parts)+1];
+					$sname = end(explode("/", $file));
+					// Making sure this is a sprites directory, otherwise go for normal import
+					if (function_exists('sasson_sprites') && function_exists('drupal_get_path') && is_dir(drupal_get_path('theme', $theme) . '/images/sprites/' . $sname)) {
+						$tree = SassFile::getTree(sasson_sprites($sname, $theme), $this->parser);
+					}
+					else {
+						$tree = SassFile::getTree(
+							SassFile::getFile($file, $this->parser), $this->parser);
+					}
+				}
 				if (empty($tree)) {
 					throw new SassImportNodeException('Unable to create document tree for {file}', array('{file}'=>$file), $this);
 				}

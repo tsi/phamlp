@@ -17,7 +17,7 @@
  */
 class SassDirectiveNode extends SassNode {
 	const NODE_IDENTIFIER = '@';
-	const MATCH = '/^(@\w+)/';
+	const MATCH = '/^(@[\w-]+)/';
 
 	/**
 	 * SassDirectiveNode.
@@ -29,7 +29,10 @@ class SassDirectiveNode extends SassNode {
 	}
 	
 	protected function getDirective() {
-		return self::extractDirective($this->token);
+		preg_match('/^(@[\w-]+)(?:\s*\(?([\w-]+):?\s?\)?)*/', $this->token->source, $matches);
+		$matches = explode(' ', $matches[0]);
+		$parts = implode(' ', $matches);
+		return strtolower($parts);
 	}
 
 	/**
