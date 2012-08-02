@@ -664,6 +664,7 @@ class SassParser {
 	 * @return object Statement token. Null if end of source. 
 	 */
 	private function scss2Token() {
+		
 		static $srcpos = 0; // current position in the source stream
 		static $srclen; // the length of the source stream
 		
@@ -672,7 +673,12 @@ class SassParser {
 		if (empty($srclen)) {
 			$srclen = strlen($this->source);
 		}
+
 		while (is_null($token) && $srcpos < $srclen) {
+			if (!isset($this->source[$srcpos])){ 
+			  throw new SassException('Syntax error');
+			  return; 
+			}
 			$c = $this->source[$srcpos++];
 			switch ($c) {
 				case self::BEGIN_COMMENT:	
